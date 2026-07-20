@@ -1,7 +1,12 @@
 import { ConvexHttpClient } from "convex/browser";
 import { PDFDocument, StandardFonts } from "pdf-lib";
+import fs from "node:fs";
 
-const url = "http://127.0.0.1:3210";
+const url =
+  process.env.NEXT_PUBLIC_CONVEX_URL ??
+  fs.readFileSync(".env.local", "utf8").match(/NEXT_PUBLIC_CONVEX_URL=(\S+)/)?.[1];
+if (!url) throw new Error("NEXT_PUBLIC_CONVEX_URL not found");
+console.log(`Testing against ${url}`);
 const client = new ConvexHttpClient(url);
 
 // Build a small two-page policy-like PDF with selectable text.
