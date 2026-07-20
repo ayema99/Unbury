@@ -1,65 +1,135 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
+import { useEffect } from "react";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="flex-1 flex items-center justify-center p-6">
+      <AuthLoading>
+        <p className="text-slate-400 text-sm">Loading…</p>
+      </AuthLoading>
+      <Authenticated>
+        <RedirectToDocuments />
+      </Authenticated>
+      <Unauthenticated>
+        <SignInCard />
+      </Unauthenticated>
+    </main>
+  );
+}
+
+function RedirectToDocuments() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/documents");
+  }, [router]);
+  return <p className="text-slate-400 text-sm">Redirecting…</p>;
+}
+
+function SignInCard() {
+  const { signIn } = useAuthActions();
+  const [flow, setFlow] = useState<"signIn" | "signUp">("signIn");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    const formData = new FormData(event.currentTarget);
+    formData.set("flow", flow);
+    try {
+      await signIn("password", formData);
+    } catch {
+      setError(
+        flow === "signIn"
+          ? "Invalid email or password."
+          : "Could not create the account. Use a valid email and a password with at least 8 characters."
+      );
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="w-full max-w-sm">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-semibold tracking-tight">Unbury</h1>
+        <p className="text-slate-500 mt-2 text-sm leading-relaxed">
+          Upload your PDFs and ask questions in plain English.
+          <br />
+          Every answer is cited to your actual documents.
+        </p>
+      </div>
+
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4"
+      >
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="email">
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="password">
+            Password
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            minLength={8}
+            autoComplete={flow === "signIn" ? "current-password" : "new-password"}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+          />
         </div>
-      </main>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full rounded-lg bg-slate-900 text-white py-2 text-sm font-medium hover:bg-slate-700 disabled:opacity-50 transition-colors"
+        >
+          {submitting
+            ? "Please wait…"
+            : flow === "signIn"
+              ? "Sign in"
+              : "Create account"}
+        </button>
+
+        <p className="text-center text-sm text-slate-500">
+          {flow === "signIn" ? "No account yet?" : "Already have an account?"}{" "}
+          <button
+            type="button"
+            onClick={() => {
+              setFlow(flow === "signIn" ? "signUp" : "signIn");
+              setError(null);
+            }}
+            className="font-medium text-slate-900 hover:underline"
+          >
+            {flow === "signIn" ? "Sign up" : "Sign in"}
+          </button>
+        </p>
+      </form>
+
+      <p className="text-center text-xs text-slate-400 mt-6 leading-relaxed">
+        Your documents are encrypted at rest, never used for model training,
+        and can be deleted at any time.
+      </p>
     </div>
   );
 }

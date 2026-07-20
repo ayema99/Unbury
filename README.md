@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Unbury
 
-## Getting Started
+Upload your own PDFs (insurance policies, tax forms, leases, medical statements) and ask plain-English questions. Every answer is grounded in and cited to your actual documents — page number and quoted snippet included. If the answer isn't in your documents, Unbury says so instead of guessing.
 
-First, run the development server:
+## Stack
+
+- **Next.js** on Vercel — UI (upload, document list, chat with citations)
+- **Convex** — auth, database, file storage, vector search, ingest & RAG actions
+- **Groq** — `nomic-embed-text-v1.5` embeddings + `llama-3.3-70b-versatile` answers
+
+## How it works
+
+1. You upload a PDF → it's stored in Convex File Storage, encrypted at rest with AES-256-GCM.
+2. An ingest action extracts text per page, chunks it (~400 tokens with overlap), embeds each chunk via Groq, and stores vectors in a Convex vector index tagged with your user id.
+3. When you ask a question, it's embedded, the top 6 chunks from *your* documents are retrieved, and Groq Llama 3.3 70B answers from those excerpts only — citing page numbers, or replying "I couldn't find that in your uploaded documents."
+4. Deleting a document removes the encrypted file, all chunks, and all vectors immediately.
+
+## Privacy
+
+- Documents are encrypted at rest and never exposed via public URLs.
+- Your data is never used to train models.
+- Everything is deletable on request (delete button per document).
+- Answers are informational only — not legal, financial, or medical advice.
+
+## Local development
 
 ```bash
+npm install
+
+# Terminal 1: Convex backend (creates .env.local on first run)
+npx convex dev
+
+# One-time: generate auth + encryption keys on the deployment
+node scripts/setup-env.mjs
+
+# One-time: set your Groq API key (get one at https://console.groq.com)
+npx convex env set GROQ_API_KEY gsk_...
+
+# Terminal 2: frontend
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000, create an account, upload a PDF, and start asking questions.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Convex**: `npx convex deploy` (after `npx convex login`). Set `JWT_PRIVATE_KEY`, `JWKS`, `SITE_URL` (your production URL), `ENCRYPTION_KEY`, and `GROQ_API_KEY` on the production deployment (`node scripts/setup-env.mjs` with `--prod`-configured CLI, or via the Convex dashboard).
+2. **Vercel**: import the repo, set `NEXT_PUBLIC_CONVEX_URL` to your production Convex URL, deploy.
 
-## Learn More
+## Project layout
 
-To learn more about Next.js, take a look at the following resources:
+```
+convex/
+  schema.ts        # tables + 768-dim vector index (filtered by userId)
+  auth.ts          # Convex Auth, email + password
+  documents.ts     # upload URL, create, list, delete (cascades to vectors + storage)
+  ingest.ts        # "use node" action: extract → chunk → embed → index
+  ingestHelpers.ts # internal mutations/queries used by ingest
+  rag.ts           # ask action: vector search → Groq → citations
+  chat.ts          # sessions, messages, internal RAG helpers
+  lib/             # pdf extraction, chunking, embeddings, Groq prompt, AES-GCM
+app/
+  page.tsx             # sign in / sign up
+  documents/page.tsx   # upload + document list (live status)
+  chat/page.tsx        # session list
+  chat/[sessionId]/    # chat with cited answers
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## v1 limitations
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- PDFs must contain selectable text (no OCR for scanned/handwritten documents).
+- Citations show text snippets, not an embedded PDF page viewer.
+- Single-user accounts; no document sharing.
