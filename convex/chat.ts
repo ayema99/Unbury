@@ -131,15 +131,23 @@ export const insertMessage = internalMutation({
 });
 
 /**
- * Resolve vector search hits into chunk text + document metadata,
- * enforcing user ownership on every row.
+ * Full-text search over the user's chunks, joined with document metadata.
+ * The search index is filtered by userId so results never cross accounts.
  */
-export const resolveChunks = internalQuery({
+export const searchChunks = internalQuery({
   args: {
-    embeddingIds: v.array(v.id("chunkEmbeddings")),
     userId: v.id("users"),
+    query: v.string(),
+    limit: v.number(),
   },
   handler: async (ctx, args) => {
+    const hits = await ctx.db
+      .query("chunks")
+      .withSearchIndex("search_text", (q) =>
+        q.search("text", args.query).eq("userId", args.userId)
+      )
+      .take(args.limit);
+
     const results: {
       chunkId: Id<"chunks">;
       documentId: Id<"documents">;
@@ -147,11 +155,7 @@ export const resolveChunks = internalQuery({
       pageNumber: number;
       text: string;
     }[] = [];
-    for (const embeddingId of args.embeddingIds) {
-      const embedding = await ctx.db.get(embeddingId);
-      if (!embedding || embedding.userId !== args.userId) continue;
-      const chunk = await ctx.db.get(embedding.chunkId);
-      if (!chunk) continue;
+    for (const chunk of hits) {
       const doc = await ctx.db.get(chunk.documentId);
       if (!doc) continue;
       results.push({

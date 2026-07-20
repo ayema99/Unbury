@@ -16,7 +16,6 @@ import type * as ingest from "../ingest.js";
 import type * as ingestHelpers from "../ingestHelpers.js";
 import type * as lib_chunk from "../lib/chunk.js";
 import type * as lib_crypto from "../lib/crypto.js";
-import type * as lib_embed from "../lib/embed.js";
 import type * as lib_groq from "../lib/groq.js";
 import type * as lib_pdf from "../lib/pdf.js";
 import type * as rag from "../rag.js";
@@ -36,7 +35,6 @@ declare const fullApi: ApiFromModules<{
   ingestHelpers: typeof ingestHelpers;
   "lib/chunk": typeof lib_chunk;
   "lib/crypto": typeof lib_crypto;
-  "lib/embed": typeof lib_embed;
   "lib/groq": typeof lib_groq;
   "lib/pdf": typeof lib_pdf;
   rag: typeof rag;

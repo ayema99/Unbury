@@ -59,24 +59,17 @@ export const insertChunkBatch = internalMutation({
         pageNumber: v.number(),
         chunkIndex: v.number(),
         text: v.string(),
-        embedding: v.array(v.float64()),
       })
     ),
   },
   handler: async (ctx, args) => {
     for (const chunk of args.chunks) {
-      const chunkId = await ctx.db.insert("chunks", {
+      await ctx.db.insert("chunks", {
         userId: args.userId,
         documentId: args.documentId,
         pageNumber: chunk.pageNumber,
         chunkIndex: chunk.chunkIndex,
         text: chunk.text,
-      });
-      await ctx.db.insert("chunkEmbeddings", {
-        chunkId,
-        userId: args.userId,
-        documentId: args.documentId,
-        embedding: chunk.embedding,
       });
     }
   },

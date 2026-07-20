@@ -71,14 +71,6 @@ export const remove = mutation({
     const doc = await ctx.db.get(args.documentId);
     if (!doc || doc.userId !== userId) throw new Error("Document not found");
 
-    const embeddings = await ctx.db
-      .query("chunkEmbeddings")
-      .withIndex("by_document", (q) => q.eq("documentId", args.documentId))
-      .collect();
-    for (const embedding of embeddings) {
-      await ctx.db.delete(embedding._id);
-    }
-
     const chunks = await ctx.db
       .query("chunks")
       .withIndex("by_document", (q) => q.eq("documentId", args.documentId))

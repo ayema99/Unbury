@@ -28,19 +28,10 @@ export default defineSchema({
     pageNumber: v.number(),
     chunkIndex: v.number(),
     text: v.string(),
-  }).index("by_document", ["documentId"]),
-
-  // Vectors live in their own table so chunk reads stay small.
-  chunkEmbeddings: defineTable({
-    chunkId: v.id("chunks"),
-    userId: v.id("users"),
-    documentId: v.id("documents"),
-    embedding: v.array(v.float64()),
   })
     .index("by_document", ["documentId"])
-    .vectorIndex("by_embedding", {
-      vectorField: "embedding",
-      dimensions: 768,
+    .searchIndex("search_text", {
+      searchField: "text",
       filterFields: ["userId"],
     }),
 

@@ -5,7 +5,6 @@ import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { extractPdfPages } from "./lib/pdf";
 import { chunkPages, countEmptyPages } from "./lib/chunk";
-import { embedTexts } from "./lib/embed";
 import { encrypt } from "./lib/crypto";
 
 const INSERT_BATCH_SIZE = 20;
@@ -56,14 +55,11 @@ export const ingestDocument = internalAction({
         throw new Error("No readable text could be extracted from this PDF.");
       }
 
-      const embeddings = await embedTexts(chunks.map((c) => c.text));
-
       for (let i = 0; i < chunks.length; i += INSERT_BATCH_SIZE) {
-        const batch = chunks.slice(i, i + INSERT_BATCH_SIZE).map((chunk, j) => ({
+        const batch = chunks.slice(i, i + INSERT_BATCH_SIZE).map((chunk) => ({
           pageNumber: chunk.pageNumber,
           chunkIndex: chunk.chunkIndex,
           text: chunk.text,
-          embedding: embeddings[i + j],
         }));
         await ctx.runMutation(internal.ingestHelpers.insertChunkBatch, {
           documentId: args.documentId,

@@ -5,15 +5,15 @@ Upload your own PDFs (insurance policies, tax forms, leases, medical statements)
 ## Stack
 
 - **Next.js** on Vercel — UI (upload, document list, chat with citations)
-- **Convex** — auth, database, file storage, vector search, ingest & RAG actions
-- **Groq** — `nomic-embed-text-v1.5` embeddings + `llama-3.3-70b-versatile` answers
+- **Convex** — auth, database, file storage, full-text search, ingest & RAG actions
+- **Groq** — `llama-3.3-70b-versatile` for grounded answers
 
 ## How it works
 
 1. You upload a PDF → it's stored in Convex File Storage, encrypted at rest with AES-256-GCM.
-2. An ingest action extracts text per page, chunks it (~400 tokens with overlap), embeds each chunk via Groq, and stores vectors in a Convex vector index tagged with your user id.
-3. When you ask a question, it's embedded, the top 6 chunks from *your* documents are retrieved, and Groq Llama 3.3 70B answers from those excerpts only — citing page numbers, or replying "I couldn't find that in your uploaded documents."
-4. Deleting a document removes the encrypted file, all chunks, and all vectors immediately.
+2. An ingest action extracts text per page, chunks it (~400 tokens with overlap), and indexes each chunk in a Convex full-text search index tagged with your user id.
+3. When you ask a question, key terms are extracted, the top 6 matching chunks from *your* documents are retrieved, and Groq Llama 3.3 70B answers from those excerpts only — citing page numbers, or replying "I couldn't find that in your uploaded documents."
+4. Deleting a document removes the encrypted file and all indexed chunks immediately.
 
 ## Privacy
 
@@ -40,6 +40,12 @@ npx convex env set GROQ_API_KEY gsk_...
 npm run dev
 ```
 
+Optional end-to-end check (uploads a tiny test policy PDF, asks three questions, cleans up):
+
+```bash
+node scripts/ingest-test.mjs
+```
+
 Open http://localhost:3000, create an account, upload a PDF, and start asking questions.
 
 ## Deployment
@@ -51,14 +57,14 @@ Open http://localhost:3000, create an account, upload a PDF, and start asking qu
 
 ```
 convex/
-  schema.ts        # tables + 768-dim vector index (filtered by userId)
+  schema.ts        # tables + full-text search index on chunks (filtered by userId)
   auth.ts          # Convex Auth, email + password
-  documents.ts     # upload URL, create, list, delete (cascades to vectors + storage)
-  ingest.ts        # "use node" action: extract → chunk → embed → index
+  documents.ts     # upload URL, create, list, delete (cascades to chunks + storage)
+  ingest.ts        # "use node" action: extract → chunk → index
   ingestHelpers.ts # internal mutations/queries used by ingest
-  rag.ts           # ask action: vector search → Groq → citations
+  rag.ts           # ask action: full-text search → Groq → citations
   chat.ts          # sessions, messages, internal RAG helpers
-  lib/             # pdf extraction, chunking, embeddings, Groq prompt, AES-GCM
+  lib/             # pdf extraction, chunking, Groq prompt, AES-GCM
 app/
   page.tsx             # sign in / sign up
   documents/page.tsx   # upload + document list (live status)
@@ -71,3 +77,7 @@ app/
 - PDFs must contain selectable text (no OCR for scanned/handwritten documents).
 - Citations show text snippets, not an embedded PDF page viewer.
 - Single-user accounts; no document sharing.
+- Retrieval is keyword-based (Convex full-text search), not semantic. Groq
+  removed public access to its embeddings API, so vector search would require a
+  separate embedding provider — swap `chat.searchChunks` back to a vector index
+  if you add one.

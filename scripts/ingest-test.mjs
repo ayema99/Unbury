@@ -62,6 +62,43 @@ if (doc.errorMessage) console.log(`Error message: ${doc.errorMessage}`);
 if (doc.pageCount) console.log(`Page count: ${doc.pageCount}`);
 console.log(`Encrypted: ${!!doc.encryptionIv}`);
 
+if (doc.status === "ready") {
+  // Full RAG round-trip: in-document question, follow-up, and off-topic.
+  const sessionId = await client.mutation("chat:createSession", {});
+
+  const answer1 = await client.action("rag:ask", {
+    sessionId,
+    content: "What is my deductible for water damage?",
+  });
+  console.log(`\nQ1 (in document): ${answer1}`);
+
+  const answer2 = await client.action("rag:ask", {
+    sessionId,
+    content: "What about flood damage specifically?",
+  });
+  console.log(`\nQ2 (follow-up): ${answer2}`);
+
+  const answer3 = await client.action("rag:ask", {
+    sessionId,
+    content: "What is the capital of France?",
+  });
+  console.log(`\nQ3 (off-topic, should be not-found): ${answer3}`);
+
+  const messages = await client.query("chat:listMessages", { sessionId });
+  const withCitations = messages.filter(
+    (m) => m.role === "assistant" && m.citations?.length > 0
+  );
+  console.log(
+    `\nAssistant messages with citations: ${withCitations.length}`
+  );
+  if (withCitations[0]) {
+    console.log(
+      `First citation: page ${withCitations[0].citations[0].pageNumber} of ${withCitations[0].citations[0].filename}`
+    );
+  }
+  await client.mutation("chat:removeSession", { sessionId });
+}
+
 // Clean up the test document either way.
 await client.mutation("documents:remove", { documentId: doc._id });
-console.log("Cleaned up test document.");
+console.log("\nCleaned up test document and session.");
