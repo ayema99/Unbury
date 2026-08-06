@@ -27,7 +27,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 function RedirectToSignIn() {
   const router = useRouter();
   useEffect(() => {
-    router.replace("/");
+    router.replace("/login");
   }, [router]);
   return null;
 }

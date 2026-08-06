@@ -12,7 +12,11 @@ export default function ConvexClientProvider({
   children: ReactNode;
 }) {
   return (
-    <ConvexAuthProvider client={convex} storage={sessionStorage}>
+    <ConvexAuthProvider
+      client={convex}
+      // sessionStorage doesn't exist during server-side prerendering
+      storage={typeof window === "undefined" ? undefined : window.sessionStorage}
+    >
       {children}
     </ConvexAuthProvider>
   );
