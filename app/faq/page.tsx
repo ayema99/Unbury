@@ -11,12 +11,12 @@ export const metadata: Metadata = {
 
 export default function FaqPage() {
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col bg-gradient-to-b from-amber-50 to-white">
       <SiteHeader />
 
       <main className="flex-1">
-        <section className="bg-gradient-to-b from-amber-50/70 to-white">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-12 lg:pt-24">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-20 lg:pt-24 space-y-12">
+          <header>
             <p className="text-sm font-medium text-amber-700 mb-3">FAQ</p>
             <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900 leading-[1.1]">
               Questions people actually ask
@@ -26,36 +26,17 @@ export default function FaqPage() {
               private, and where UK tax guidance comes from. If something still
               isn&apos;t clear, the honest limitations are listed at the end.
             </p>
-          </div>
-        </section>
+          </header>
 
-        <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-8">
-          <nav
-            aria-label="FAQ sections"
-            className="flex flex-wrap gap-2"
-          >
-            {faqGroups.map((group) => (
-              <a
-                key={group.id}
-                href={`#${group.id}`}
-                className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-slate-400 hover:text-slate-900 transition-colors"
-              >
-                {group.title}
-              </a>
-            ))}
-          </nav>
-        </section>
-
-        <section className="max-w-3xl mx-auto px-4 sm:px-6 space-y-12 pb-20">
           {faqGroups.map((group) => (
             <div key={group.id} id={group.id} className="scroll-mt-24">
               <h2 className="text-2xl font-semibold tracking-tight text-slate-900 mb-4">
                 {group.title}
               </h2>
-              <div className="divide-y divide-slate-200 border border-slate-200 rounded-2xl bg-white overflow-hidden">
+              <div className="divide-y divide-slate-200 border border-slate-200/80 rounded-2xl bg-white/80 overflow-hidden">
                 {group.items.map((item) => (
                   <details key={item.question} className="group">
-                    <summary className="cursor-pointer list-none px-5 py-4 flex items-start justify-between gap-4 text-left hover:bg-slate-50 transition-colors [&::-webkit-details-marker]:hidden">
+                    <summary className="cursor-pointer list-none px-5 py-4 flex items-start justify-between gap-4 text-left hover:bg-amber-50/50 transition-colors [&::-webkit-details-marker]:hidden">
                       <span className="font-medium text-slate-900 text-sm sm:text-base">
                         {item.question}
                       </span>
@@ -75,7 +56,7 @@ export default function FaqPage() {
             </div>
           ))}
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-8 text-center">
+          <div className="rounded-2xl border border-amber-100 bg-white/80 p-8 text-center">
             <h2 className="text-xl font-semibold tracking-tight text-slate-900">
               Ready to ask your documents something?
             </h2>
@@ -89,10 +70,10 @@ export default function FaqPage() {
               Get started free
             </Link>
           </div>
-        </section>
+        </div>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white">
+      <footer className="border-t border-amber-100/80">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-slate-400">
             © {new Date().getFullYear()} Unbury · Answers are informational only

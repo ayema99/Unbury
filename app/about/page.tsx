@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col bg-gradient-to-b from-amber-50 to-white">
       <SiteHeader />
 
       <main className="flex-1">
-        <section className="bg-gradient-to-b from-amber-50/70 to-white">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-12 lg:pt-24">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-20 lg:pt-24 space-y-14">
+          <header>
             <p className="text-sm font-medium text-amber-700 mb-3">
               About Unbury
             </p>
@@ -28,10 +28,8 @@ export default function AboutPage() {
               nobody actually reads. Unbury exists so you can stop skimming
               48-page PDFs and just ask.
             </p>
-          </div>
-        </section>
+          </header>
 
-        <section className="max-w-3xl mx-auto px-4 sm:px-6 py-4 space-y-14 pb-20">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight text-slate-900 mb-4">
               What Unbury is
@@ -129,7 +127,7 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-8 text-center">
+          <div className="rounded-2xl border border-amber-100 bg-white/80 p-8 text-center">
             <h2 className="text-xl font-semibold tracking-tight text-slate-900">
               Ready to ask your documents something?
             </h2>
@@ -143,10 +141,10 @@ export default function AboutPage() {
               Get started free
             </Link>
           </div>
-        </section>
+        </div>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white">
+      <footer className="border-t border-amber-100/80">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-slate-400">
             © {new Date().getFullYear()} Unbury · Answers are informational only
