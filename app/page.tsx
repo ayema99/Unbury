@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Authenticated } from "convex/react";
 import SiteHeader, { UnburyMark } from "@/components/SiteHeader";
+import { featuredFaqs } from "@/lib/faq";
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
         <Story />
         <Honesty />
         <Privacy />
+        <FaqPreview />
         <FinalCta />
       </main>
       <SiteFooter />
@@ -388,6 +390,51 @@ function Privacy() {
   );
 }
 
+/* ------------------------------ FAQ preview ---------------------------- */
+
+function FaqPreview() {
+  return (
+    <section id="faq" className="scroll-mt-20 max-w-6xl mx-auto px-4 sm:px-6 py-20 lg:py-24">
+      <div className="text-center max-w-2xl mx-auto mb-12">
+        <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">
+          Frequently asked questions
+        </h2>
+        <p className="mt-4 text-slate-600 leading-relaxed">
+          Short answers to the things people ask before they upload a file.
+        </p>
+      </div>
+      <div className="max-w-3xl mx-auto divide-y divide-slate-200 border border-slate-200 rounded-2xl bg-white overflow-hidden">
+        {featuredFaqs.map((item) => (
+          <details key={item.question} className="group">
+            <summary className="cursor-pointer list-none px-5 py-4 flex items-start justify-between gap-4 text-left hover:bg-slate-50 transition-colors [&::-webkit-details-marker]:hidden">
+              <span className="font-medium text-slate-900 text-sm sm:text-base">
+                {item.question}
+              </span>
+              <span
+                className="mt-0.5 shrink-0 text-slate-400 group-open:rotate-45 transition-transform text-xl leading-none"
+                aria-hidden
+              >
+                +
+              </span>
+            </summary>
+            <p className="px-5 pb-5 text-sm text-slate-600 leading-relaxed">
+              {item.answer}
+            </p>
+          </details>
+        ))}
+      </div>
+      <div className="mt-8 text-center">
+        <Link
+          href="/faq"
+          className="inline-flex rounded-full border border-slate-300 bg-white text-slate-700 text-sm font-medium px-6 py-3 hover:border-slate-400 hover:text-slate-900 transition-colors"
+        >
+          See all questions
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 /* ------------------------------ Final CTA ------------------------------ */
 
 function FinalCta() {
@@ -427,6 +474,9 @@ function SiteFooter() {
         <nav className="flex items-center gap-6 text-sm text-slate-500">
           <Link href="/about" className="hover:text-slate-900 transition-colors">
             About
+          </Link>
+          <Link href="/faq" className="hover:text-slate-900 transition-colors">
+            FAQ
           </Link>
           <Link href="/login" className="hover:text-slate-900 transition-colors">
             Log in

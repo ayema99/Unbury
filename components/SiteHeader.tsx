@@ -69,6 +69,9 @@ export default function SiteHeader() {
           <Link href="/about" className="hover:text-slate-900 transition-colors">
             About
           </Link>
+          <Link href="/faq" className="hover:text-slate-900 transition-colors">
+            FAQ
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">

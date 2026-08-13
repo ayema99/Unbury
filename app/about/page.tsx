@@ -147,10 +147,20 @@ export default function AboutPage() {
       </main>
 
       <footer className="border-t border-slate-200 bg-white">
-        <p className="max-w-3xl mx-auto px-4 sm:px-6 py-6 text-xs text-slate-400 text-center">
-          © {new Date().getFullYear()} Unbury · Answers are informational only
-          and not legal, financial, or medical advice.
-        </p>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-slate-400">
+            © {new Date().getFullYear()} Unbury · Answers are informational only
+            and not legal, financial, or medical advice.
+          </p>
+          <nav className="flex items-center gap-5 text-sm text-slate-500">
+            <Link href="/faq" className="hover:text-slate-900 transition-colors">
+              FAQ
+            </Link>
+            <Link href="/login" className="hover:text-slate-900 transition-colors">
+              Log in
+            </Link>
+          </nav>
+        </div>
       </footer>
     </div>
   );
