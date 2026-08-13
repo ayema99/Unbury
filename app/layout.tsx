@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { ViewTransition } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
-import PageTransition from "@/components/PageTransition";
 import { Analytics } from '@vercel/analytics/next';
 
 const geistSans = Geist({
@@ -33,7 +33,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">
         <ConvexClientProvider>
-          <PageTransition>{children}</PageTransition>
+          <ViewTransition name="page">
+            <div className="flex flex-1 flex-col">{children}</div>
+          </ViewTransition>
         </ConvexClientProvider>
         <Analytics />
       </body>
