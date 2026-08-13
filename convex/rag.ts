@@ -1,10 +1,22 @@
 import { v } from "convex/values";
-import { action } from "./_generated/server";
+import { action, type ActionCtx } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { answerQuestion, NOT_FOUND_MESSAGE, Excerpt } from "./lib/groq";
+import { Id } from "./_generated/dataModel";
+import {
+  answerQuestion,
+  NOT_FOUND_MESSAGE,
+  Excerpt,
+  HistoryTurn,
+} from "./lib/groq";
+import { clipQuote } from "./lib/citations";
+import { currentUkTaxYear } from "./lib/policyAllowlist";
 
-const TOP_K = 6;
+const DOC_TOP_K = 6;
+const POLICY_TOP_K = 4;
+
+const TAX_QUESTION_RE =
+  /\b(tax|hmrc|paye|p60|p45|p11d|cis|vat|isa|sipp|self[ -]?assessment|national insurance|ni|cgt|capital gains|dividend|personal allowance|tax[ -]?free|tax[ -]?year|income tax|corporation tax|self[ -]?employed|sa100|sa302|withholding)\b/i;
 
 export const ask = action({
   args: {
@@ -18,7 +30,6 @@ export const ask = action({
     const question = args.content.trim();
     if (!question) throw new Error("Question is empty");
 
-    // Verifies session ownership; grabs recent turns for follow-ups.
     const history = await ctx.runQuery(internal.chat.getContext, {
       sessionId: args.sessionId,
       userId,
@@ -31,13 +42,19 @@ export const ask = action({
       content: question,
     });
 
-    const chunks = await ctx.runQuery(internal.chat.searchChunks, {
+    const searchQuery = toSearchQuery(question);
+
+    const docChunks = await ctx.runQuery(internal.chat.searchChunks, {
       userId,
-      query: toSearchQuery(question),
-      limit: TOP_K,
+      query: searchQuery,
+      limit: DOC_TOP_K,
     });
 
-    if (chunks.length === 0) {
+    const policyChunks = shouldRetrievePolicy(question, history)
+      ? await searchPolicy(ctx, searchQuery)
+      : [];
+
+    if (docChunks.length === 0 && policyChunks.length === 0) {
       await ctx.runMutation(internal.chat.insertMessage, {
         sessionId: args.sessionId,
         userId,
@@ -48,19 +65,29 @@ export const ask = action({
       return NOT_FOUND_MESSAGE;
     }
 
-    const excerpts: Excerpt[] = chunks.map((chunk, i) => ({
-      index: i + 1,
-      filename: chunk.filename,
-      pageNumber: chunk.pageNumber,
-      text: chunk.text,
-    }));
+    const excerpts: Excerpt[] = [
+      ...docChunks.map((chunk, i) => ({
+        index: i + 1,
+        kind: "document" as const,
+        filename: chunk.filename,
+        pageNumber: chunk.pageNumber,
+        text: chunk.text,
+      })),
+      ...policyChunks.map((chunk, i) => ({
+        index: docChunks.length + i + 1,
+        kind: "policy" as const,
+        title: chunk.title,
+        url: chunk.url,
+        taxYear: chunk.taxYear,
+        text: chunk.text,
+      })),
+    ];
 
     const answer = await answerQuestion({ question, excerpts, history });
 
-    // Map [n] markers in the answer back to the excerpts they reference.
     const citations = answer.includes(NOT_FOUND_MESSAGE)
       ? []
-      : buildCitations(answer, chunks);
+      : buildCitations(answer, docChunks, policyChunks);
 
     await ctx.runMutation(internal.chat.insertMessage, {
       sessionId: args.sessionId,
@@ -97,29 +124,77 @@ function toSearchQuery(question: string): string {
   return terms.length > 0 ? terms.join(" ") : question;
 }
 
+function looksLikeTaxQuestion(text: string): boolean {
+  return TAX_QUESTION_RE.test(text);
+}
+
+function shouldRetrievePolicy(
+  question: string,
+  history: HistoryTurn[]
+): boolean {
+  if (looksLikeTaxQuestion(question)) return true;
+  return history.some(
+    (turn) => turn.role === "user" && looksLikeTaxQuestion(turn.content)
+  );
+}
+
+async function searchPolicy(ctx: ActionCtx, query: string) {
+  const taxYear = currentUkTaxYear();
+  const currentYearHits = await ctx.runQuery(internal.policy.searchChunks, {
+    query,
+    limit: POLICY_TOP_K,
+    taxYear,
+  });
+  if (currentYearHits.length > 0) return currentYearHits;
+
+  return await ctx.runQuery(internal.policy.searchChunks, {
+    query,
+    limit: POLICY_TOP_K,
+  });
+}
+
 function buildCitations(
   answer: string,
-  chunks: {
-    documentId: string;
+  docChunks: {
+    documentId: Id<"documents">;
     filename: string;
     pageNumber: number;
     text: string;
+  }[],
+  policyChunks: {
+    sourceId: Id<"policySources">;
+    title: string;
+    url: string;
+    taxYear: string;
+    text: string;
   }[]
 ) {
+  const total = docChunks.length + policyChunks.length;
   const cited = new Set<number>();
   for (const match of answer.matchAll(/\[(\d+)\]/g)) {
     const index = parseInt(match[1], 10);
-    if (index >= 1 && index <= chunks.length) cited.add(index);
+    if (index >= 1 && index <= total) cited.add(index);
   }
+
   return [...cited].sort((a, b) => a - b).map((index) => {
-    const chunk = chunks[index - 1];
+    if (index <= docChunks.length) {
+      const chunk = docChunks[index - 1];
+      return {
+        kind: "document" as const,
+        documentId: chunk.documentId,
+        filename: chunk.filename,
+        pageNumber: chunk.pageNumber,
+        quote: clipQuote(chunk.text),
+      };
+    }
+    const chunk = policyChunks[index - 1 - docChunks.length];
     return {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      documentId: chunk.documentId as any,
-      filename: chunk.filename,
-      pageNumber: chunk.pageNumber,
-      quote:
-        chunk.text.length > 240 ? chunk.text.slice(0, 237) + "..." : chunk.text,
+      kind: "policy" as const,
+      sourceId: chunk.sourceId,
+      title: chunk.title,
+      url: chunk.url,
+      taxYear: chunk.taxYear,
+      quote: clipQuote(chunk.text),
     };
   });
 }

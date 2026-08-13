@@ -3,7 +3,7 @@
 import { use, useEffect, useRef, useState } from "react";
 import { useAction, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import AppShell from "@/components/AppShell";
 import Link from "next/link";
 
@@ -20,12 +20,13 @@ export default function ChatSessionPage({
   );
 }
 
-type Citation = {
-  documentId: Id<"documents">;
-  filename: string;
-  pageNumber: number;
-  quote: string;
-};
+type Citation = NonNullable<Doc<"chatMessages">["citations"]>[number];
+
+function isPolicyCitation(
+  citation: Citation
+): citation is Extract<Citation, { kind: "policy" }> {
+  return "kind" in citation && citation.kind === "policy";
+}
 
 function ChatView({ sessionId }: { sessionId: Id<"chatSessions"> }) {
   const messages = useQuery(api.chat.listMessages, { sessionId });
@@ -89,6 +90,9 @@ function ChatView({ sessionId }: { sessionId: Id<"chatSessions"> }) {
             <p className="text-slate-400 text-sm italic mt-2">
               “What is my deductible for water damage?”
             </p>
+            <p className="text-slate-400 text-sm italic mt-1">
+              “Does this P60 match the current UK personal allowance?”
+            </p>
           </div>
         ) : (
           messages.map((message) => (
@@ -107,7 +111,7 @@ function ChatView({ sessionId }: { sessionId: Id<"chatSessions"> }) {
             <div className="flex justify-start">
               <div className="bg-white border border-slate-200 rounded-2xl px-4 py-3">
                 <span className="text-sm text-slate-400 animate-pulse">
-                  Searching your documents…
+                  Searching…
                 </span>
               </div>
             </div>
@@ -126,7 +130,7 @@ function ChatView({ sessionId }: { sessionId: Id<"chatSessions"> }) {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask a question about your documents…"
+            placeholder="Ask about your documents or UK tax rules…"
             className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
           />
           <button
@@ -169,19 +173,41 @@ function MessageBubble({
             <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
               Sources
             </p>
-            {citations.map((citation, i) => (
-              <details key={i} className="group">
-                <summary className="text-xs text-slate-600 cursor-pointer hover:text-slate-900 list-none flex items-center gap-1.5">
-                  <span className="bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 font-mono">
-                    p.{citation.pageNumber}
-                  </span>
-                  <span className="truncate">{citation.filename}</span>
-                </summary>
-                <blockquote className="mt-1.5 ml-1 pl-3 border-l-2 border-slate-200 text-xs text-slate-500 italic leading-relaxed">
-                  “{citation.quote}”
-                </blockquote>
-              </details>
-            ))}
+            {citations.map((citation, i) =>
+              isPolicyCitation(citation) ? (
+                <details key={i} className="group">
+                  <summary className="text-xs text-slate-600 cursor-pointer hover:text-slate-900 list-none flex items-center gap-1.5">
+                    <span className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded px-1.5 py-0.5 font-mono">
+                      {citation.taxYear}
+                    </span>
+                    <a
+                      href={citation.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="truncate hover:underline"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      {citation.title}
+                    </a>
+                  </summary>
+                  <blockquote className="mt-1.5 ml-1 pl-3 border-l-2 border-slate-200 text-xs text-slate-500 italic leading-relaxed">
+                    “{citation.quote}”
+                  </blockquote>
+                </details>
+              ) : (
+                <details key={i} className="group">
+                  <summary className="text-xs text-slate-600 cursor-pointer hover:text-slate-900 list-none flex items-center gap-1.5">
+                    <span className="bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 font-mono">
+                      p.{citation.pageNumber}
+                    </span>
+                    <span className="truncate">{citation.filename}</span>
+                  </summary>
+                  <blockquote className="mt-1.5 ml-1 pl-3 border-l-2 border-slate-200 text-xs text-slate-500 italic leading-relaxed">
+                    “{citation.quote}”
+                  </blockquote>
+                </details>
+              )
+            )}
           </div>
         )}
       </div>

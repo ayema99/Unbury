@@ -7,6 +7,7 @@ import {
 } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { Id } from "./_generated/dataModel";
+import { citation } from "./lib/citations";
 
 export const listSessions = query({
   args: {},
@@ -96,16 +97,7 @@ export const insertMessage = internalMutation({
     userId: v.id("users"),
     role: v.union(v.literal("user"), v.literal("assistant")),
     content: v.string(),
-    citations: v.optional(
-      v.array(
-        v.object({
-          documentId: v.id("documents"),
-          filename: v.string(),
-          pageNumber: v.number(),
-          quote: v.string(),
-        })
-      )
-    ),
+    citations: v.optional(v.array(citation)),
   },
   handler: async (ctx, args) => {
     // Title new sessions with the first user question.

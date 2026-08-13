@@ -57,6 +57,14 @@ export function countEmptyPages(pages: string[]): number {
   return pages.filter((p) => normalizeWhitespace(p).length < MIN_PAGE_TEXT).length;
 }
 
+/** Chunk a single HTML-extracted policy page (no PDF page numbers). */
+export function chunkText(text: string): { chunkIndex: number; text: string }[] {
+  return chunkPages([text]).map(({ chunkIndex, text: chunk }) => ({
+    chunkIndex,
+    text: chunk,
+  }));
+}
+
 function normalizeWhitespace(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
