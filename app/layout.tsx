@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { ViewTransition } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
+import PageViewTransition from "@/components/PageViewTransition";
 import { Analytics } from '@vercel/analytics/next';
 
 const geistSans = Geist({
@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Unbury — Ask your documents",
+  title: "unboxyourtax — Ask your documents",
   description:
     "Upload your PDFs and ask plain-English questions. Answers are grounded in and cited to your actual documents.",
 };
@@ -29,13 +29,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">
         <ConvexClientProvider>
-          <ViewTransition name="page">
-            <div className="flex flex-1 flex-col">{children}</div>
-          </ViewTransition>
+          <PageViewTransition>{children}</PageViewTransition>
         </ConvexClientProvider>
         <Analytics />
       </body>

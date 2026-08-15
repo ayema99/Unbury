@@ -1,6 +1,6 @@
-# Unbury
+# unboxyourtax
 
-Upload your own PDFs (insurance policies, tax forms, leases, medical statements) and ask plain-English questions. Every answer is grounded in and cited to your actual documents — page number and quoted snippet included. If the answer isn't in your documents, Unbury says so instead of guessing.
+Upload your own PDFs (insurance policies, tax forms, leases, medical statements) and ask plain-English questions. Every answer is grounded in and cited to your actual documents — page number and quoted snippet included. If the answer isn't in your documents, unboxyourtax says so instead of guessing.
 
 ## Stack
 

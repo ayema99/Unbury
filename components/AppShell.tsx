@@ -62,7 +62,7 @@ function Shell({ children }: { children: ReactNode }) {
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/documents" className="font-semibold tracking-tight">
-              Unbury
+              unboxyourtax
             </Link>
             <nav className="flex items-center gap-1">
               {navLink("/documents", "Documents")}

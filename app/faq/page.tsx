@@ -4,9 +4,9 @@ import SiteHeader from "@/components/SiteHeader";
 import { faqGroups } from "@/lib/faq";
 
 export const metadata: Metadata = {
-  title: "FAQ — Unbury",
+  title: "FAQ — unboxyourtax",
   description:
-    "Answers to common questions about Unbury: how it works, what you can upload, UK tax guidance, privacy, and limitations.",
+    "Answers to common questions about unboxyourtax: how it works, what you can upload, UK tax guidance, privacy, and limitations.",
 };
 
 export default function FaqPage() {
@@ -22,7 +22,7 @@ export default function FaqPage() {
               Questions people actually ask
             </h1>
             <p className="mt-6 text-lg text-slate-600 leading-relaxed">
-              How Unbury works, what it can read, how your files are kept
+              How unboxyourtax works, what it can read, how your files are kept
               private, and where UK tax guidance comes from. If something still
               isn&apos;t clear, the honest limitations are listed at the end.
             </p>
@@ -76,7 +76,7 @@ export default function FaqPage() {
       <footer className="border-t border-amber-100/80">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-slate-400">
-            © {new Date().getFullYear()} Unbury · Answers are informational only
+            © {new Date().getFullYear()} unboxyourtax · Answers are informational only
             and not legal, financial, or medical advice.
           </p>
           <nav className="flex items-center gap-5 text-sm text-slate-500">

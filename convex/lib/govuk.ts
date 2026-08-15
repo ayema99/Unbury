@@ -1,5 +1,5 @@
 const CONTENT_API = "https://www.gov.uk/api/content";
-const USER_AGENT = "Unbury/0.1 (UK tax policy ingest)";
+const USER_AGENT = "unboxyourtax/0.1 (UK tax policy ingest)";
 
 export interface GovukContentItem {
   title: string;

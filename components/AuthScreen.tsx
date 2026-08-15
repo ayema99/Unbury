@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
-import SiteHeader, { UnburyMark } from "@/components/SiteHeader";
+import SiteHeader, { SiteMark } from "@/components/SiteHeader";
 
 type Flow = "signIn" | "signUp";
 
@@ -64,7 +64,7 @@ function SignInCard({ initialFlow }: { initialFlow: Flow }) {
     <div className="w-full max-w-sm">
       <div className="text-center mb-8">
         <div className="flex justify-center mb-4">
-          <UnburyMark className="h-12 w-12" />
+          <SiteMark className="h-12 w-12" />
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">
           {flow === "signIn" ? "Welcome back" : "Create your account"}

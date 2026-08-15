@@ -3,9 +3,9 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
-  title: "About — Unbury",
+  title: "About — unboxyourtax",
   description:
-    "Why Unbury exists, how it answers questions from your own documents, and what it will never do with your data.",
+    "Why unboxyourtax exists, how it answers questions from your own documents, and what it will never do with your data.",
 };
 
 export default function AboutPage() {
@@ -17,7 +17,7 @@ export default function AboutPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-20 lg:pt-24 space-y-14">
           <header>
             <p className="text-sm font-medium text-amber-700 mb-3">
-              About Unbury
+              About unboxyourtax
             </p>
             <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900 leading-[1.1]">
               Important answers shouldn&apos;t be buried in fine print.
@@ -25,23 +25,23 @@ export default function AboutPage() {
             <p className="mt-6 text-lg text-slate-600 leading-relaxed">
               The documents that govern the biggest parts of your life — your
               health coverage, your home, your taxes — are also the ones
-              nobody actually reads. Unbury exists so you can stop skimming
+              nobody actually reads. unboxyourtax exists so you can stop skimming
               48-page PDFs and just ask.
             </p>
           </header>
 
           <div>
             <h2 className="text-2xl font-semibold tracking-tight text-slate-900 mb-4">
-              What Unbury is
+              What unboxyourtax is
             </h2>
             <p className="text-slate-600 leading-relaxed">
-              Unbury is a private question-answering tool for your own
+              unboxyourtax is a private question-answering tool for your own
               documents. You upload PDFs — insurance policies, leases, tax
               forms, medical statements, contracts — and ask questions in
               plain English. Instead of a generic AI response, you get an
               answer grounded in <em>your</em> files, with the page number and
               the exact quoted passage it came from. If the answer isn&apos;t
-              in your documents, Unbury says so rather than guessing.
+              in your documents, unboxyourtax says so rather than guessing.
             </p>
           </div>
 
@@ -57,7 +57,7 @@ export default function AboutPage() {
                 },
                 {
                   title: "Index",
-                  body: "Unbury extracts the text page by page and builds a private search index tied only to your account.",
+                  body: "unboxyourtax extracts the text page by page and builds a private search index tied only to your account.",
                 },
                 {
                   title: "Ask",
@@ -87,7 +87,7 @@ export default function AboutPage() {
 
           <div>
             <h2 className="text-2xl font-semibold tracking-tight text-slate-900 mb-4">
-              What Unbury will never do
+              What unboxyourtax will never do
             </h2>
             <ul className="space-y-3">
               {[
@@ -120,9 +120,9 @@ export default function AboutPage() {
               Honest limitations
             </h2>
             <p className="text-slate-600 leading-relaxed">
-              Unbury works with PDFs that contain selectable text — scanned or
+              unboxyourtax works with PDFs that contain selectable text — scanned or
               handwritten documents aren&apos;t supported yet. And while every
-              answer is cited to your documents, Unbury is an informational
+              answer is cited to your documents, unboxyourtax is an informational
               tool: it isn&apos;t legal, financial, or medical advice.
             </p>
           </div>
@@ -147,7 +147,7 @@ export default function AboutPage() {
       <footer className="border-t border-amber-100/80">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-slate-400">
-            © {new Date().getFullYear()} Unbury · Answers are informational only
+            © {new Date().getFullYear()} unboxyourtax · Answers are informational only
             and not legal, financial, or medical advice.
           </p>
           <nav className="flex items-center gap-5 text-sm text-slate-500">

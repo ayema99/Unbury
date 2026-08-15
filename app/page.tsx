@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Authenticated } from "convex/react";
-import SiteHeader, { UnburyMark } from "@/components/SiteHeader";
+import SiteHeader, { SiteMark } from "@/components/SiteHeader";
 import { featuredFaqs } from "@/lib/faq";
 
 export default function Home() {
@@ -61,7 +61,7 @@ function Hero() {
           </h1>
           <p className="mt-6 text-lg text-slate-600 leading-relaxed max-w-xl">
             Insurance policies, leases, tax forms, medical statements — the
-            facts you need are buried in pages of fine print. Unbury lets you
+            facts you need are buried in pages of fine print. unboxyourtax lets you
             upload your PDFs and ask questions in plain English. Every answer
             comes with a page number and the exact quote it came from.
           </p>
@@ -70,7 +70,7 @@ function Hero() {
               href="/signup"
               className="rounded-full bg-slate-900 text-white text-sm font-medium px-6 py-3 hover:bg-slate-700 transition-colors shadow-sm"
             >
-              Start unburying — it&apos;s free
+              Start unboxing — it&apos;s free
             </Link>
             <Link
               href="/about"
@@ -190,7 +190,7 @@ function BuriedStrip() {
 
 const steps = [
   {
-    title: "Bury it in Unbury instead",
+    title: "Drop it into unboxyourtax",
     body: "Drop in your PDFs. Each file is stored encrypted at rest with AES-256 — never exposed through a public link, never shared.",
     icon: (
       <>
@@ -202,7 +202,7 @@ const steps = [
   },
   {
     title: "We dig through every page",
-    body: "Unbury reads your documents page by page and builds a private index of what's inside — so nothing stays hidden in the fine print.",
+    body: "unboxyourtax reads your documents page by page and builds a private index of what's inside — so nothing stays hidden in the fine print.",
     icon: (
       <>
         <circle cx="11" cy="11" r="7" />
@@ -228,7 +228,7 @@ function Story() {
     <section id="story" className="scroll-mt-20 max-w-6xl mx-auto px-4 sm:px-6 py-20 lg:py-24">
       <div className="text-center max-w-2xl mx-auto mb-14">
         <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">
-          From buried to unburied in three steps
+          From buried in fine print to unboxed in three steps
         </h2>
         <p className="mt-4 text-slate-600 leading-relaxed">
           You shouldn&apos;t need a lawyer, a broker, and a free afternoon to
@@ -288,7 +288,7 @@ function Honesty() {
           </h2>
           <p className="mt-4 text-slate-300 leading-relaxed">
             Most AI tools would rather invent an answer than admit they
-            don&apos;t know. Unbury answers only from what&apos;s actually in
+            don&apos;t know. unboxyourtax answers only from what&apos;s actually in
             your documents. If it isn&apos;t there, it tells you straight —
             so you never act on a made-up clause.
           </p>
@@ -441,7 +441,7 @@ function FinalCta() {
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20 lg:py-24 text-center">
       <div className="flex justify-center mb-6">
-        <UnburyMark className="h-14 w-14" />
+        <SiteMark className="h-14 w-14" />
       </div>
       <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900">
         Stop re-reading. Start asking.
@@ -469,7 +469,7 @@ function SiteFooter() {
     <footer className="border-t border-slate-200 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-slate-500">
-          © {new Date().getFullYear()} Unbury
+          © {new Date().getFullYear()} unboxyourtax
         </p>
         <nav className="flex items-center gap-6 text-sm text-slate-500">
           <Link href="/about" className="hover:text-slate-900 transition-colors">

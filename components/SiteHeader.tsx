@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 
-export function UnburyMark({ className = "h-8 w-8" }: { className?: string }) {
+export function SiteMark({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <span
       className={`${className} inline-flex items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-sm`}
@@ -58,8 +58,8 @@ export default function SiteHeader() {
           href="/"
           className="flex items-center gap-2.5 font-semibold tracking-tight text-lg text-slate-900"
         >
-          <UnburyMark />
-          Unbury
+          <SiteMark />
+          unboxyourtax
         </Link>
 
         <nav className="hidden sm:flex items-center gap-7 text-sm text-slate-600">
