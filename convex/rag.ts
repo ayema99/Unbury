@@ -9,7 +9,7 @@ import {
   Excerpt,
   HistoryTurn,
 } from "./lib/groq";
-import { clipQuote } from "./lib/citations";
+import { clipQuote, stripCitationMarkers } from "./lib/citations";
 import { currentUkTaxYear } from "./lib/policyAllowlist";
 
 const DOC_TOP_K = 6;
@@ -89,15 +89,18 @@ export const ask = action({
       ? []
       : buildCitations(answer, docChunks, policyChunks);
 
+    // Markers drive citation mapping above; the reader sees the Sources list.
+    const content = stripCitationMarkers(answer);
+
     await ctx.runMutation(internal.chat.insertMessage, {
       sessionId: args.sessionId,
       userId,
       role: "assistant",
-      content: answer,
+      content,
       citations,
     });
 
-    return answer;
+    return content;
   },
 });
 

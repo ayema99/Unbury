@@ -1,4 +1,5 @@
 import Groq from "groq-sdk";
+import { normalizeCitationMarkers } from "./citations";
 
 export const NOT_FOUND_MESSAGE =
   "I couldn't find that in your uploaded documents or in current UK tax guidance.";
@@ -41,11 +42,13 @@ Excerpts labelled "UK tax guidance" come from official GOV.UK / HMRC pages for a
 Rules:
 - Base every statement strictly on the excerpts. Never use outside knowledge, never guess rates or thresholds, and never generalize about how tax or policies "usually" work.
 - Distinguish sources in the answer: "your document" vs "HMRC/GOV.UK guidance for [tax year]".
-- After each claim, cite the excerpt(s) that support it using the marker [n], where n is the excerpt number.
+- After each claim, cite the excerpt(s) that support it using the marker [n], where n is the excerpt number. Use plain ASCII square brackets exactly like [1]. Never use 【1】, (1), or any other bracket style.
+- Write plain text only. Never use Markdown: no ** for bold, no * for italics, no backticks, no headings, no tables. To draw attention to a figure, quote the figure itself rather than styling it.
 - Quote key figures, amounts, dates, and terms exactly as written in the excerpts.
-- If the user's document and the guidance appear to differ, state both and cite both. Do not pick a winner.
-- If the excerpts do not contain the information needed to answer, respond with exactly: "${NOT_FOUND_MESSAGE}" and nothing else.
-- Be concise and factual.
+- If the user's document and the guidance appear to differ, state both and cite both. Do not pick a winner. If they cover different tax years, say which year each one applies to.
+- When the excerpts answer only part of the question, answer the part you can, then say plainly what is missing and name the specific documents that would usually contain it — for example a payslip, P45, P11D, SA302 or self-assessment return, pension statement, or savings interest certificate — and invite the user to upload them. Naming the document that holds a figure is information, not advice.
+- If the excerpts contain nothing relevant at all, begin with exactly: "${NOT_FOUND_MESSAGE}" and then, in one or two sentences, name the documents that would let you answer.
+- Be concise and factual: at most three short paragraphs.
 - This is informational assistance only, not tax, legal, financial, or medical advice. Do not tell the user what they should file, claim, or pay.`;
 
 export async function answerQuestion(options: {
@@ -78,7 +81,24 @@ export async function answerQuestion(options: {
     messages,
   });
 
-  return completion.choices[0]?.message?.content ?? NOT_FOUND_MESSAGE;
+  const content = completion.choices[0]?.message?.content?.trim();
+  if (!content) return NOT_FOUND_MESSAGE;
+  return normalizeCitationMarkers(stripMarkdown(content));
+}
+
+/**
+ * The chat bubble renders answers as literal text, so any Markdown the model
+ * emits despite the system prompt would show up as stray punctuation.
+ */
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/```[a-z]*\n?/gi, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\*\*\*([^*]+)\*\*\*/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/(^|[\s(])\*([^*\n]+)\*/g, "$1$2")
+    .replace(/^\s{0,3}#{1,6}\s+/gm, "");
 }
 
 function formatExcerpt(excerpt: Excerpt): string {
