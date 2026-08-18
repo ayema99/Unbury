@@ -3,6 +3,12 @@ import Groq from "groq-sdk";
 export const NOT_FOUND_MESSAGE =
   "I couldn't find that in your uploaded documents or in current UK tax guidance.";
 
+/**
+ * Overridable via the GROQ_MODEL environment variable so a provider
+ * deprecation can be handled without a redeploy.
+ */
+const DEFAULT_MODEL = "openai/gpt-oss-120b";
+
 export type DocumentExcerpt = {
   index: number;
   kind: "document";
@@ -66,7 +72,7 @@ export async function answerQuestion(options: {
   ];
 
   const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: process.env.GROQ_MODEL ?? DEFAULT_MODEL,
     temperature: 0,
     max_tokens: 1280,
     messages,

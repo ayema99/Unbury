@@ -6,13 +6,13 @@ Upload your own PDFs (insurance policies, tax forms, leases, medical statements)
 
 - **Next.js** on Vercel — UI (upload, document list, chat with citations)
 - **Convex** — auth, database, file storage, full-text search, ingest & RAG actions
-- **Groq** — `llama-3.3-70b-versatile` for grounded answers
+- **Groq** — `openai/gpt-oss-120b` for grounded answers (override with `GROQ_MODEL`)
 
 ## How it works
 
 1. You upload a PDF → it's stored in Convex File Storage, encrypted at rest with AES-256-GCM.
 2. An ingest action extracts text per page, chunks it (~400 tokens with overlap), and indexes each chunk in a Convex full-text search index tagged with your user id.
-3. When you ask a question, key terms are extracted, the top 6 matching chunks from *your* documents are retrieved, and Groq Llama 3.3 70B answers from those excerpts only — citing page numbers, or replying "I couldn't find that in your uploaded documents."
+3. When you ask a question, key terms are extracted, the top 6 matching chunks from *your* documents are retrieved, and Groq GPT-OSS 120B answers from those excerpts only — citing page numbers, or replying "I couldn't find that in your uploaded documents."
 4. Deleting a document removes the encrypted file and all indexed chunks immediately.
 
 ## Privacy
@@ -35,6 +35,9 @@ node scripts/setup-env.mjs
 
 # One-time: set your Groq API key (get one at https://console.groq.com)
 npx convex env set GROQ_API_KEY gsk_...
+
+# Optional: pin a different chat model (defaults to openai/gpt-oss-120b)
+npx convex env set GROQ_MODEL openai/gpt-oss-120b
 
 # Terminal 2: frontend
 npm run dev
