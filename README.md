@@ -36,6 +36,10 @@ node scripts/setup-env.mjs
 # One-time: set your Groq API key (get one at https://console.groq.com)
 npx convex env set GROQ_API_KEY gsk_...
 
+# One-time: set your Resend API key (get one at https://resend.com) so auth
+# can email sign-up verification and password reset codes
+npx convex env set RESEND_API_KEY re_...
+
 # Optional: pin a different chat model (defaults to openai/gpt-oss-120b)
 npx convex env set GROQ_MODEL openai/gpt-oss-120b
 
@@ -53,8 +57,22 @@ Open http://localhost:3000, create an account, upload a PDF, and start asking qu
 
 ## Deployment
 
-1. **Convex**: `npx convex deploy` (after `npx convex login`). Set `JWT_PRIVATE_KEY`, `JWKS`, `SITE_URL` (your production URL), `ENCRYPTION_KEY`, and `GROQ_API_KEY` on the production deployment (`node scripts/setup-env.mjs` with `--prod`-configured CLI, or via the Convex dashboard).
+1. **Convex**: `npx convex deploy` (after `npx convex login`). Set `JWT_PRIVATE_KEY`, `JWKS`, `SITE_URL` (your production URL), `ENCRYPTION_KEY`, `GROQ_API_KEY`, and `RESEND_API_KEY` on the production deployment (`node scripts/setup-env.mjs` with `--prod`-configured CLI, or via the Convex dashboard).
 2. **Vercel**: import the repo, set `NEXT_PUBLIC_CONVEX_URL` to your production Convex URL, deploy.
+
+Auth emails are sent from `AUTH_EMAIL_FROM`, which must be an address on a domain
+verified in Resend (e.g. `unboxyourtax <no-reply@send.example.com>`). Without it, the
+code falls back to Resend's `onboarding@resend.dev` sandbox, which only delivers to
+the Resend account owner — fine locally, broken for real users:
+
+```bash
+npx convex env set --prod AUTH_EMAIL_FROM "unboxyourtax <no-reply@send.example.com>"
+```
+
+Convex functions do **not** deploy with the Vercel build by default. Either run
+`npx convex deploy` yourself after backend changes, or set the Vercel build command to
+`npx convex deploy --cmd 'npm run build'` (with `CONVEX_DEPLOY_KEY` in the Vercel env)
+so the two can't drift apart.
 
 ## Project layout
 

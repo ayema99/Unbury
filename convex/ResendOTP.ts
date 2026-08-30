@@ -11,7 +11,11 @@ const random: RandomReader = {
   },
 };
 
-const FROM = "unboxyourtax <onboarding@resend.dev>";
+/**
+ * Must be an address on a domain verified in Resend. The resend.dev fallback
+ * only delivers to the Resend account owner, so production sets AUTH_EMAIL_FROM.
+ */
+const FROM = process.env.AUTH_EMAIL_FROM ?? "unboxyourtax <onboarding@resend.dev>";
 const CODE_TTL_SECONDS = 60 * 15;
 
 function emailedOTP({
