@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
-import { useAuthActions } from "@convex-dev/auth/react";
+import UserMenu from "@/components/UserMenu";
 
 export default function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -33,9 +33,7 @@ function RedirectToSignIn() {
 }
 
 function Shell({ children }: { children: ReactNode }) {
-  const { signOut } = useAuthActions();
   const pathname = usePathname();
-  const router = useRouter();
 
   const navLink = (href: string, label: string) => {
     const active =
@@ -69,15 +67,7 @@ function Shell({ children }: { children: ReactNode }) {
               {navLink("/chat", "Chat")}
             </nav>
           </div>
-          <button
-            onClick={async () => {
-              await signOut();
-              router.replace("/");
-            }}
-            className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
-          >
-            Sign out
-          </button>
+          <UserMenu />
         </div>
       </header>
 

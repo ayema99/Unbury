@@ -27,6 +27,7 @@ import type * as lib_policyMeta from "../lib/policyMeta.js";
 import type * as policy from "../policy.js";
 import type * as policyIngest from "../policyIngest.js";
 import type * as rag from "../rag.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -54,6 +55,7 @@ declare const fullApi: ApiFromModules<{
   policy: typeof policy;
   policyIngest: typeof policyIngest;
   rag: typeof rag;
+  users: typeof users;
 }>;
 
 /**
